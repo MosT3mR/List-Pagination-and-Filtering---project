@@ -33,17 +33,21 @@ function showPage(list, page){
          `);
       }
    }
+   
 }
 
 /*
 Create the `addPagination` function
 This function will create and insert/append the elements needed for the pagination buttons
 */
-const pageList = Math.ceil(data.length / 9);
-const pageUl = document.querySelector('.link-list');
 
-function addPagination(list){
+
+function addPagination(list, thefunction){ // i changed the function so i can use it in search and the home page
+
+   const pageList = Math.ceil(list.length / 9);
+   const pageUl = document.querySelector('.link-list');
    pageUl.innerHTML = '';
+   if (list.length !== 0) { // to make sure there is result 
    for(let i = 0; i < pageList; i++){
       const pageLi = document.createElement('li');
       const pageButton = document.createElement('button');
@@ -59,9 +63,10 @@ function addPagination(list){
          const lastActive = document.querySelector('.active');
          lastActive.className = '';
          button.className = 'active';
-         showPage(data,button.textContent);
+         thefunction(data,button.textContent);
       }
    });
+}
 }
 
 /*
@@ -73,13 +78,13 @@ const header = document.querySelector('.header').firstElementChild;
 const searchFrom = header.insertAdjacentHTML('afterend',`
    <label for="search" class="student-search">
    <span>Search by name</span>
-   <input id="search" placeholder="Search by name..." onkeyup="searchList()">
+   <input id="search" placeholder="Search by name..." onkeyup="searchFunction(data)">
    <button type="button"><img src="img/icn-search.svg" alt="Search icon"></button>
    </label>
 `); // onkeyup for the searchfunction
 
-function searchList(page = 1) {
-   pageUl.innerHTML = '';
+const searchUl = document.querySelector('.link-list');
+function searchFunction(list, page = 1) {
    const startIndex = (page * 9) - 9;
    const endIndex = page * 9;
    const studentUl = document.querySelector('.student-list');
@@ -119,28 +124,18 @@ function searchList(page = 1) {
       <h3>No results have been found.</h3>
       </div>`;
    }
-   
-   const searchList = Math.ceil(filteringNames.length / 9);
-   for(let i = 0; i < searchList; i++){
-      const pageLi = document.createElement('li');
-      const pageButton = document.createElement('button');
-      pageButton.type = 'button';
-      pageButton.innerHTML = i + 1;
-      pageUl.appendChild(pageLi);
-      pageLi.appendChild(pageButton);
-   }
-   pageUl.addEventListener('click', (e) => {
-      if(e.target.tagName === 'BUTTON'){
-         const button = e.target;
-         const lastActive = document.querySelector('.active');
-         lastActive.className = '';
-         button.className = 'active';
-         showPage(data,button.textContent);
-      }
-   });
+   return filteringNames; // to return the list outside of the function
 }
+
+
+
+
 
 
 // Call functions
 showPage(data,1);
-addPagination(data);
+addPagination(data,showPage);
+const searchKey = document.getElementById('search');
+searchKey.addEventListener('keyup', (e) => {
+   addPagination(searchFunction(),searchFunction);
+});
